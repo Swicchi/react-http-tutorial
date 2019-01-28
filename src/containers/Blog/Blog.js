@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import axios from 'axios';
-import Post from '../../components/Post/Post';
-import FullPost from '../../components/FullPost/FullPost';
-import NewPost from '../../components/NewPost/NewPost';
+import {NavLink, Route, Switch} from 'react-router-dom';
+import Posts from './Posts/Posts';
+import NewPost from './NewPost/NewPost';
+import FullPost from './FullPost/FullPost';
 import './Blog.css';
 
 class Blog extends Component {
@@ -13,58 +13,27 @@ class Blog extends Component {
         error: false
     };
 
-    componentDidMount() {
-        axios.get('/posts')
-            .then(response => {
-                const posts = response.data.slice(0,4);
-                const updatedPosts = posts.map(post => {
-                    return {
-                        ...post,
-                        author: 'Remigio'
-                    }
-                });
-                this.setState({posts: updatedPosts})
-            })
-            .catch(error => {
-                console.log(error);
-                this.setState({error: true})
-            });
-    }
-
-    postSelectHandler = (idx) => {
-        const selectedPostIndex = this.state.posts.findIndex(p => {
-            return p.id === idx;
-        });
-        const selectedPost = {...this.state.posts[selectedPostIndex]};
-        this.setState({
-            selectedPost: selectedPost,
-            selectedPostId: idx
-        })
-    };
-
     render() {
-        let posts = <p style={{textAlign: 'center'}}>ERROR!!</p>
-        if (!this.state.error) {
-            posts = this.state.posts.map(post => (
-                <Post
-                    key={post.id}
-                    title={post.title}
-                    author={post.author}
-                    clicked={() => this.postSelectHandler(post.id)}/>
-            ));
-        }
+
         return (
             <div>
-                <section className="Posts">
-                    {posts}
-                </section>
-                <section>
-                    <FullPost id={this.state.selectedPostId} body={this.state.selectedPost.body}
-                              title={this.state.selectedPost.title}/>
-                </section>
-                <section>
-                    <NewPost/>
-                </section>
+                <header className={"Blog"}>
+                    <nav>
+                        <ul>
+                            <li><NavLink to={"/"} exact>Home</NavLink></li>
+                            <li><NavLink to={{
+                                pathname: "/new-post",
+                                hash: '',
+                                search: ''
+                            }}>New Post</NavLink></li>
+                        </ul>
+                    </nav>
+                </header>
+                <Switch>
+                    <Route path={"/"} exact component={Posts}/>
+                    <Route path={"/new-post"} exact component={NewPost}/>
+                    <Route path={"/:id"} exact component={FullPost}/>
+                </Switch>
             </div>
         );
     }
